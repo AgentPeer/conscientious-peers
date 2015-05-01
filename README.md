@@ -11,16 +11,16 @@ Update Resources States Algorithm.
 UPDATE_RESOURCES_STATES()
 if isNotAlive(agent)
   findAgentInSwarm()
-freeRiders <- agent.getFreeRidersInSwarm
+freeRiders = agent.getFreeRidersInSwarm
 ServiceModule.purgeConnections(freeRiders)
-segmentsUp <- getUploadedSegments
-segmentsDw <- getDownloadedSegments
+segmentsUp = getUploadedSegments
+segmentsDw = getDownloadedSegments
 agent.updateSegments(segmentsUp, segmentsDw, me)
-bandwith <- obtainUploadBandwith
+bandwith = obtainUploadBandwith
 if bandwith < UPLOAD_LIMIT
-  available <- true
+  available = true
 else
-  available <- false
+  available = false
 agent.updateAvailableUpload(avail, me)
 ```
 
@@ -29,19 +29,19 @@ Peer Segment Discovery
 SEGMENT_DISCOVERY(Segment s)
 if sequential(me)
   if ServiceModule.hasSegment(s) is true
-    peers <- ServiceModule.nextPeers(s)
+    peers = ServiceModule.nextPeers(s)
   else
-    peers <- AgentModule.nextPeers(s)
+    peers = AgentModule.nextPeers(s)
   BUILD_SEQUENTIALLY (peers)
 else
-  peers <- AgentModule.jumpPeers(s)
+  peers = AgentModule.jumpPeers(s)
   BUILD_JUMPS(peers)
 ```
 
 Build Connections Using Sequential Policy
 ```javascript
 BUILD_SEQUENTIALLY (List peers)
-s <- LastDownloadedSegment
+s = LastDownloadedSegment
 for each peer in peers
   if sequential(peer) and isAlive(peer)
     connect(me, peer)
@@ -51,13 +51,13 @@ for each peer in peers
 Build Connections Using Jump Policy
 ```javascript
 BUILD_JUMP (List peers)
-s <- LastDownloadedSegment
+s = LastDownloadedSegment
 for each peer in peers
   if isAlive(peer)
     connect(me, peer)
     download(peer, s)
 if size(peers) < LIMIT_CONNECTED_PEERS
-  newPeers <- AgentModule.jumpPeers(s)
+  newPeers = AgentModule.jumpPeers(s)
   BUILD_JUMP(newPeers)
 ```
 
@@ -66,36 +66,36 @@ if size(peers) < LIMIT_CONNECTED_PEERS
 Update Sequential Neighbors Algorithm
 ```javascript
 UPDATE_NEIGHBORS()
-segments <- getSwarmDownloadedSegments
-members <- obtainSwarmMembers
+segments = getSwarmDownloadedSegments
+members = obtainSwarmMembers
 if qty(members) < SWARM_LIMIT
-  availJoin <- true
+  availJoin = true
 else
-  availJoin <- false
-bandwith <- obtainSwarmUploadBandwith
+  availJoin = false
+bandwith = obtainSwarmUploadBandwith
 if bandwith < UPLOAD_LIMIT
-  availUpload <- true
+  availUpload = true
 else
-  availUpload <- false
+  availUpload = false
 for each agent in sequentialNeighborList
   if isAlive(agent)
     agent.updateResources(availJoin, availUpload, segments, agent)
   else
     sequentialNeighborsList.remove(agent)
-newAgents <- sequentialNeighborsList.obtainSequentialNeighborsAgents
+newAgents = sequentialNeighborsList.obtainSequentialNeighborsAgents
 sequentialNeighborsList.add(newAgents)
 ```
 
 Monitor Swarm Behaviour Algorithm
 ```javascript
 MONITOR_SWARM ()
-members <- obtainSwarmMembers
+members = obtainSwarmMembers
 for each peer in members
-  purge <- false
+  purge = false
   if isNotAlive(peer)
-    purge <- true
+    purge = true
   if hasNotUploadSegment(peer)
-    purge <- true
+    purge = true
     untrustableList.add(peer)
   if purge is true
     members.remove(peer)
@@ -104,11 +104,11 @@ for each peer in members
 Process Join Swarm Algorithm
 ```javascript
 PROCESS_JOIN (Peer p)
-members <- obtainSwarmMembers
+members = obtainSwarmMembers
 if qty(members) > SWARM_LIMIT
   returns false
 for each agent in SequentialModule.sequentialNeighborsList
-  option <- agent.isTrust(p)
+  option = agent.isTrust(p)
   if option is TRUSTY
     join(p)
     returns true
@@ -121,26 +121,26 @@ returns true
 Video Segments Search Algorithm
 ```javascript
 SEGMENT_DISCOVERY (Segment s, Peer p, Boolean join)}
-isMember <- SwarmModule.isMember (p)
+isMember = SwarmModule.isMember (p)
 if isMember is false and join is true
   SwarmModule.PROCESS_JOIN (p)
 if segmentManagedBySwarm(s)
-  peers <- SwarmModule.obtainAvailablePeers(s)
+  peers = SwarmModule.obtainAvailablePeers(s)
 else if segmentManagedByNeighbors(s)
-  peers <- SequentialModule.obtainAvailablePeers(s)
+  peers = SequentialModule.obtainAvailablePeers(s)
 else if segmentManagedByJumps(s)
-  peers <- GLOBAL_SEARCH (s, p, join)
+  peers = GLOBAL_SEARCH (s, p, join)
 returns peers
 ```
 
 Video Segments Global Search Algorithm
 ```javascript
 GLOBAL_SEARCH (Segment s, Peer p, Boolean wantJoins)
-agentClose <- JumpingModule.obtainAgent(s)
+agentClose = JumpingModule.obtainAgent(s)
 if isSharing(agentClose, s)
-  peers <- agentClose.obtainAvailablePeers(s)
+  peers = agentClose.obtainAvailablePeers(s)
 else
-  peers <- agentClose.SEGMENT_DISCOVERY(s, p, wantJoins)
+  peers = agentClose.SEGMENT_DISCOVERY(s, p, wantJoins)
 returns peers
 ```
 
@@ -149,7 +149,7 @@ returns peers
 Peer-Agent Conversion Algorithm (in a first join)
 ```javascript
 PROVIDES_VIDEO (Video v)
-listAgents <- MASLayer.obtainAgents(v)
+listAgents = MASLayer.obtainAgents(v)
 if listAgents is empty
   MASLayer.register(me)
 else
@@ -161,13 +161,13 @@ else
 Peer-Agent Conversion Algorithm
 ```javascript
 CONVERT_TO_AGENT()
-downloaded <- verifyDownloadAllSegments
+downloaded = verifyDownloadAllSegments
 if downloaded is true
-  agent <- obtainAgentSwarm
-  members <- agent.obtainSwarmMembers
+  agent = obtainAgentSwarm
+  members = agent.obtainSwarmMembers
   if qty(members) > SWARM_LIMIT
-    SequentialModule.update($agent$)
-    JumpingModule.update($agent$.joins)
+    SequentialModule.update(agent)
+    JumpingModule.update(agent.joins)
     agent.removePeer(me)
     agent.addAgent(me)
 ```
@@ -175,10 +175,10 @@ if downloaded is true
 Monitor Swarm Limits
 ```javascript
 MONITOR_LIMITS()
-members <- obtainSwarmMembers
+members = obtainSwarmMembers
 if qty(members) > SWARM_LIMIT
   for each peer in members
-    downloaded <- verifyDownloadAllSegments(peer)
+    downloaded = verifyDownloadAllSegments(peer)
     if downloaded is true
       agent.removePeer(peer)
       peer.CONVERT_TO_AGENT
